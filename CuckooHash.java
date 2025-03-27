@@ -1,6 +1,6 @@
 /******************************************************************
  *
- *   YOUR NAME / SECTION NUMBER
+ *   Brianna FARINANGO / 002
  *
  *   Note, additional comments provided throughout this source code
  *   is for educational purposes
@@ -245,10 +245,43 @@ public class CuckooHash<K, V> {
 	 */
 
  	public void put(K key, V value) {
-
-		// ADD YOUR CODE HERE - DO NOT FORGET TO ADD YOUR NAME AT TOP OF FILE.
-		// Also make sure you read this method's prologue above, it should help
-		// you. Especially the two HINTS in the prologue.
+		int pos1 = hash1(key);
+		int pos2 = hash2(key);
+		
+		if ((table[pos1] != null && table[pos1].getBucKey().equals(key) && table[pos1].getValue().equals(value)) || 
+			(table[pos2] != null && table[pos2].getBucKey().equals(key) && table[pos2].getValue().equals(value))) {
+			return;
+		}
+		
+		K currentKey = key;
+		V currentValue = value;
+		Bucket<K, V> currentBucket = new Bucket<>(currentKey, currentValue);
+		
+		int iterations = 0;
+		int currentPos = hash1(currentKey);
+		
+		while (iterations < CAPACITY) {
+			if (table[currentPos] == null) {
+				table[currentPos] = currentBucket;
+				return;
+			}
+			
+			Bucket<K, V> displacedBucket = table[currentPos];
+			table[currentPos] = currentBucket;
+			
+			currentBucket = displacedBucket;
+			currentKey = displacedBucket.getBucKey();
+			currentValue = displacedBucket.getValue();
+			
+			if (currentPos == hash1(currentKey)) {
+				currentPos = hash2(currentKey);
+			} else {
+				currentPos = hash1(currentKey);
+			}
+			iterations++;
+		}
+		rehash();
+		put(currentKey, currentValue);
 
 		return;
 	}
